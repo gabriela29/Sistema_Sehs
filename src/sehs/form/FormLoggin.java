@@ -35,6 +35,7 @@ import sehs.controller.ClienteBLL;
 public class FormLoggin extends javax.swing.JFrame {
  private Timer objTimer;
     private int a;
+    //hola GIt hub
     /**
      * Creates new form Home41
      */
