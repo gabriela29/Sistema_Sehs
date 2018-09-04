@@ -19,6 +19,7 @@ import sehs.entity.EmpresaTO;
  *
  * @author SEHS - TI
  */
+
 public class pnlEmpresa extends javax.swing.JPanel {
 
     /**
