@@ -14,7 +14,10 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import sehs.Database.AccesoDB;
+import static sehs.Database.AccesoDB.conectabd;
 import sehs.entity.EmpresaTO;
 import sehs.service.ICrudDao;
 
@@ -107,7 +110,7 @@ public class EmpresaDAO implements ICrudDao<EmpresaTO> {
             cn = AccesoDB.conectabd();
             // Iniciar transaccion
             cn.setAutoCommit(false);
-            usp = "{CALL basic.paempresa_eliminar(?)}";
+            usp = "{? = call basic.paempresa_eliminar(?)}";
             //preparar el sp
             cs = cn.prepareCall(usp);
             //preparar los valores de los parametros
@@ -138,19 +141,20 @@ public class EmpresaDAO implements ICrudDao<EmpresaTO> {
             usp = "{? = call basic.paempresa_leer(?, ?)}";
             cs = cn.prepareCall(usp);
             //preparar los valores de los parametros de E/S
-            // cs.registerOutParameter(1, postgress.CURSOR);
-            cs.setString(2, "'" + t.getEmpresaid() + "'");
-            cs.setString(3, "");
+             cs.registerOutParameter(1, Types.OTHER);
+            cs.setString(2, "'" + t.getNombre()+ "'");
+            cs.setString(3, "'" + t.getRuc()+ "'");
+           cs.setString(4, "" );
             cs.execute(); // ejecuta el sp
             //convierte el curso en resultset
             rs = (ResultSet) cs.getObject(1);
             if (rs.next()) {
                 emp = new EmpresaTO(
-                        rs.getLong("idempleado"),
+                        rs.getLong("empresaid"),
                         rs.getString("nombre"),
-                        rs.getString("apellidos"),
-                        rs.getString("email"),
-                        rs.getString("usuario")
+                        rs.getString("ruc"),
+                        rs.getString("direccion"),
+                        rs.getString("url")
                 );
             }
             rs.close();
@@ -231,24 +235,91 @@ cn = AccesoDB.conectabd();
 
     }
 
-    public String findForName(String nombre, String ruc) throws Exception {
-        String id = null;        
-        try {
-           cn = AccesoDB.conectabd();
-           String sql = "select empresaid from basic.empresa where nombre='" + nombre + "' and ruc='" + ruc + "' " ;
-            PreparedStatement  ps = cn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            //cargar los clientes de rs a la coleccion lista
-            if (rs.next()) {
-                id = rs.getString(1);
-            }
-            rs.close();
-            ps.close();
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            cn.close();
-        }
-        return id;
+    public void borrarContenidoTabla(JTable dtabla) {
+  DefaultTableModel tab =(DefaultTableModel) dtabla.getModel();
+        while(dtabla.getRowCount()>0){
+            tab.removeRow(tab.getRowCount()-1);
+        }    }
+
+    public void cargarRegistrosTablas(JTable dtabla) {
+        EmpresaTO lista[];
+        lista = obtenerTodosRegistros (dtabla);
+        
+
+
     }
+    
+//    public EmpresaTO[] obtenerTodosRegistros(int iduser) throws SQLException, ClassNotFoundException{
+//        EmpresaTO lista[];
+//        //conectarBD.conectar();
+//      cn = AccesoDB.conectabd();
+//        int numPac = Integer.parseInt(obtenerCampo(conectabd().RealizarConsulta("select count(*) from listanegra where iduser="+iduser+";"),"count"));
+//        lista = new EmpresaTO[numPac];
+//        ResultSet consulta;
+//       sql = "select * from listanegra where iduser="+iduser+";";
+//        try {
+//            int i=0;
+//            while(consulta.next()){
+//                lista[i]=new EmpresaTO();
+//                lista[i].setEmpresaid(Integer.parseInt(consulta.getString("empresaid")));
+//                lista[i].setNombre(consulta.getString("nombre"));
+//                lista[i].setRuc(consulta.getString("ruc"));
+//                lista[i].setDireccion(consulta.getString("direccion"));
+//                lista[i].setUrl(consulta.getString("url"));
+//                i++;
+//            }
+//        } catch (SQLException ex) {
+//            System.out.println("Error: "+ex.getMessage());
+//        }
+//        cn.close();
+//        return lista;
+//    }
+    
+    
+    
+    
 }
+
+//    public String findForName(String nombre, String ruc) throws Exception {
+////        String id = null;        
+////        try {
+////           cn = AccesoDB.conectabd();
+////           String sql = "select empresaid from basic.empresa where nombre='" + nombre + "' or  ruc='" + ruc + "' " ;
+////            PreparedStatement  ps = cn.prepareStatement(sql);
+////            ResultSet rs = ps.executeQuery();
+////            //cargar los clientes de rs a la coleccion lista
+////            if (rs.next()) {
+////                id = rs.getString(1);
+////            }
+////            rs.close();
+////            ps.close();
+////        } catch (SQLException e) {
+////            throw e;
+////        } finally {
+////            cn.close();
+////        }
+////        return id; 
+//    }
+
+   
+//    public String buscarString(String nombre, String ruc) throws Exception  {
+//       boolean sw = false;    
+//        try {
+//           cn = AccesoDB.conectabd();
+//           String sql = "select empresaid from basic.empresa where nombre='" + nombre + "' or  ruc='" + ruc + "' " ;
+//            PreparedStatement  ps = cn.prepareStatement(sql);
+//            ResultSet rs = ps.executeQuery();
+//            //cargar los clientes de rs a la coleccion lista
+//            if (rs.next()) {
+//                id = rs.getString(1);
+//            }
+//            rs.close();
+//            ps.close();
+//        } catch (SQLException e) {
+//            throw e;
+//        } finally {
+//            cn.close();
+//        }
+//        return id; 
+//    }
+
